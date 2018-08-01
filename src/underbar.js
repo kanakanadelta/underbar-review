@@ -112,32 +112,39 @@
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted, iterator) {
-    //create an placeholder object for values
-    let placeholder = {};
-    //create a container for unique values called output
-    let output = [];
-    //iterate over array
-      for(let i = 0; i < array.length; i++) {
-        //check if value exists in placeholder
-        if(!placeholder[array[i]]){
-          //if not add it into placeholder
-          placeholder[array[i]] = array[i];
-          //push value into output
-          output.push(array[i])
+    let uniqueValues = [];
+    var truthTest = true;
+    if(arguments.length === 3) {
+      _.filter(array, function(value, index) {
+        if(iterator(value) && (_.indexOf(uniqueValues, value) === -1)) {
+          uniqueValues.push(value);
         }
+        if(!iterator(value) && truthTest === true) {
+          uniqueValues.push(value);
+          truthTest = false;
+        }
+      });
+      return uniqueValues;
+    }
+    _.each(array, function(value, index) {
+      if(_.indexOf(uniqueValues, value) === -1) {
+        uniqueValues.push(value);
       }
-
-      //pass each value into the iterator
-    return output
-  };
-
+    });
+    return uniqueValues;
+  }
 
   // Return the results of applying an iterator to each element.
   _.map = function(collection, iterator) {
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
-    
+    let output = [];
+    _.each(collection, function(value, index) {
+      output.push(iterator(value));
+      
+    });
+    return output;
   };
 
   /*
@@ -178,7 +185,21 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
+
   _.reduce = function(collection, iterator, accumulator) {
+    //if accumulator !== undefined
+    if(accumulator===undefined){
+      //set the accumulator to equal first index of collection
+      accumulator = collection[0];
+        //iterate over sliced copy of the collection
+      collection = collection.slice(1);
+
+    } 
+    
+    _.each(collection, function(value, index, collection){
+      accumulator = iterator(accumulator, value)
+    });
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -196,13 +217,34 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
+    let accumulator = true;
+    
+    if(!iterator){
+      iterator = _.identity;
+    }
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(accumulator, value){
+      return accumulator && !!iterator(value);
+    }, true)
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    
+    if(collection.length===0){
+      return false;
+    }
+
+    if(arguments.length===1){
+      iterator = _.identity;
+    }
+
+   return !(_.every(collection, function(value){
+    return !iterator(value)
+    }))
+
   };
 
 
@@ -225,11 +267,26 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    let args = Array.prototype.slice.call(arguments);
+    for(let i = 1; i<args.length; i++){
+      for(let key in args[i]){
+        obj[key] = args[i][key];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    let args = Array.prototype.slice.call(arguments);
+    for(let i = 1; i<args.length; i++){
+      for(let key in args[i]){
+        if(obj[key]===undefined)
+          obj[key] = args[i][key];
+      }
+    }
+    return obj;
   };
 
 
@@ -273,6 +330,21 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    //return a function
+    return function() {
+
+    } 
+    // create a cache to store the results of calling func with arguments
+    let cache = {};
+    
+    //create a variable to store arguments
+
+    //create key and set equal to call of func with passed arguments 
+
+    
+    //check if 
+
+    //return cache[key]
   };
 
   // Delays a function for the given number of milliseconds, and then calls
